@@ -365,39 +365,39 @@
 						  var data = google.visualization.arrayToDataTable(thedata);
 						  // Optional; add a title and set the width and height of the chart
 						  var options = {
-				      	colors:['#DB5461'],
-				        
-				        hAxis: {
-				          title: 'Sectors',
-				          minValue: 0
-				        },
-				        vAxis: {
-				          // title: 'Sectors'
-				          textStyle:{
-				          	fontSize:10
-				          }
-				        },
-				        legend: { position: "none" },
-				        bars: 'horizontal',
-				        annotations: {
-				          alwaysOutside: true,
-				          textStyle: {
-				            fontSize: 12,
-				            auraColor: 'none',
-				            color: '#555'
-				          },
-				        },
-				        animation:{
-					        duration: 1000,
-					        easing: 'out',
-					        startup: true
-					    	},
-					    };
+					      	colors:['#cf1207'],
+					        
+					        hAxis: {
+					          title: 'Sectors',
+					          minValue: 0
+					        },
+					        vAxis: {
+					          // title: 'Sectors'
+					          textStyle:{
+					          	fontSize:10
+					          }
+					        },
+					        legend: { position: "none" },
+					        bars: 'horizontal',
+					        annotations: {
+					          alwaysOutside: true,
+					          textStyle: {
+					            fontSize: 12,
+					            auraColor: 'none',
+					            color: '#555'
+					          },
+					        },
+					        animation:{
+						        duration: 1000,
+						        easing: 'out',
+						        startup: true
+						    },
+						};
 
 					  // Display the chart inside the <div> element with id="piechart"
 					  var chart = new google.charts.Bar(document.getElementById('sector_report'));
-        		chart.draw(data, options);
-						}
+        		      chart.draw(data, options);
+					  }
 		    	}
 
 		    // BarChart2 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -428,39 +428,39 @@
 						  var data = google.visualization.arrayToDataTable(thedata);
 						  // Optional; add a title and set the width and height of the chart
 						  var options = {
-				      	colors:['#DB5461'],
-				        
-				        hAxis: {
-				          title: 'Channel',
-				          minValue: 0
-				        },
-				        vAxis: {
-				          // title: 'Sectors'
-				          textStyle:{
-				          	fontSize:10
-				          }
-				        },
-				        legend: { position: "none" },
-				        bars: 'horizontal',
-				        annotations: {
-				          alwaysOutside: true,
-				          textStyle: {
-				            fontSize: 12,
-				            auraColor: 'none',
-				            color: '#555'
-				          },
-				        },
-				        animation:{
-					        duration: 1000,
-					        easing: 'out',
-					        startup: true
-					    	},
-					    };
+					      	colors:['#cf1207'],
+					        
+					        hAxis: {
+					          title: 'Channel',
+					          minValue: 0
+					        },
+					        vAxis: {
+					          // title: 'Sectors'
+					          textStyle:{
+					          	fontSize:10
+					          }
+					        },
+					        legend: { position: "none" },
+					        bars: 'horizontal',
+					        annotations: {
+					          alwaysOutside: true,
+					          textStyle: {
+					            fontSize: 12,
+					            auraColor: 'none',
+					            color: '#555'
+					          },
+					        },
+					        animation:{
+						        duration: 1000,
+						        easing: 'out',
+						        startup: true
+						    	},
+						    };
 
 					  // Display the chart inside the <div> element with id="piechart"
 					  var chart = new google.charts.Bar(document.getElementById('feedbak_channel'));
-        		chart.draw(data, options);
-						}
+        			  chart.draw(data, options);
+					  }
 		    	}
 
 
