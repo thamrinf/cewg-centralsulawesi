@@ -191,6 +191,7 @@
 							</div>
 							<div class="horizontal_dotted_line" style="margin-top: 30px"></div>
 							<div class="col-md-12" style="margin-top: 30px" id="sankeydiagram"></div>
+							<div class="horizontal_dotted_line" style="margin-top: 30px"></div>
 							</div>
 							<div class="horizontal_line" style="margin-top: 30px"></div>
 						</div>
@@ -252,6 +253,27 @@
 					});
 
 					CartoDB_Positron.addTo(map);
+
+
+					function drawboundaries(){
+						d3.json('IDN-centralsulawesi_adm3_PDSP_edit.geojson',function(jso){	
+			    			// var statesData = jso;
+			    			// get color depending on population density value
+							function style(feature) {
+								return {
+									weight: 0.8,
+									opacity: 1,
+									color: '#ADB4B4',
+									fillColor: 'transparent',
+									className: 'countriesboundaries'
+								};
+							}
+							var geojson;
+							geojson = L.geoJson(jso, {
+								style: style,
+							}).addTo(map);
+			    		})
+					}
 
 			// PieChart1 ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -634,7 +656,8 @@
 							draw_status();
 							draw_report();
 							draw_sector();
-							draw_channel();	
+							draw_channel();
+							drawboundaries();
 						}
 
 					})
