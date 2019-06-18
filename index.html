@@ -39,6 +39,9 @@
 		 #loadinggif img{
 		   width: 100px;
 		 }
+		 .countriesboundaries{
+		 	pointer-events: none !important;
+		 }
    		</style>
 
 		<title>CEWG!</title>
@@ -265,7 +268,7 @@
 
 		<script type="text/javascript">
 
-			var gv_status,gv_report,gv_sector,gv_channel, gv_DataTable;
+			var gv_status,gv_report,gv_sector,gv_channel, gv_DataTable, gv_datamap;
 
     		var geojson;
 					var map = L.map('regions_div', { //map is a global variable -0.38243287652926, 120.23476123809816
@@ -317,6 +320,7 @@
 							}).addTo(map);
 			    		})
 					}
+					drawboundaries();
 
 			// PieChart1 ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -611,6 +615,22 @@
 				    } );
 		    	}
 
+		    	// datamap ---------------------------------------------------------------------------------------------------------------------------
+		    	var cluster = d3.scale.linear().domain([0,400]).range([5,20]);
+		    	var humanNumber = d3.format(',d');
+		    	function drawCircleOnMap(thedata){
+		    		console.log(thedata);
+		          	for(x in thedata){
+		              //var humanNumber = d3.format(',d');
+		              var marker = L.circleMarker([thedata[x][0],thedata[x][1]],{
+		                radius: cluster(thedata[x][2]),
+		                weight:0.7,
+		                color:'white',
+		                fillColor:'#1E4B77',
+		                fillOpacity: 0.6
+		              }).addTo(map).bindPopup('<b>'+x +': </b> <br>Number of Report: <b> '+humanNumber(thedata[x][2])+' </b>');
+		          	}
+		      	}
 
 				//---------------------------------------------------------------------------------------------------------------------------------------
 
@@ -642,7 +662,7 @@
 
 					//SANKEY-----------------------------------------
 
-					d3.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vQyWYZUYmgh8WF7wWuX8agjVEyD0qDibUNvvzcNd72v-UBo1UrcCMLQZEfrFomsEgNVug_7S1TRAcHt/pub?output=csv',function(data){
+					d3.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vQTI1caegEFNTboDi73tx0n23U2Bjs8IpoXJtXP-RCxNSGBo6F6Q5FsG-2QlVnQWdnTQfbGtkCF3SPj/pub?output=csv',function(data){
 
 						
 						var divsankey = ['sankeydiagram'];
@@ -747,6 +767,14 @@
 							});
 
 
+							//for circle
+							var datacirclemap = [];
+							data.forEach(function(d){
+								if(!datacirclemap[d['Kecamatan']]){
+									datacirclemap[d['Kecamatan']] = [d['LAT'],d['LON'],0];
+								}
+								datacirclemap[d['Kecamatan']][2] +=1;
+							})
 							// --------------------------------------------------------
 
 						}
@@ -756,8 +784,8 @@
 						draw_report();
 						draw_sector();
 						draw_channel();
-						drawboundaries();
 						draw_DataTable(data);
+						drawCircleOnMap(datacirclemap);
 					})
 				}
 
