@@ -182,6 +182,7 @@
 							<div class="col-sm">
 								<center>
 									<select class="form-control" id="periodselect" data-default ="0">
+										<option value="all">All Period</option>
 									</select>     
 								</center>
 							</div>
@@ -268,7 +269,8 @@
 
 		<script type="text/javascript">
 
-			var gv_status,gv_report,gv_sector,gv_channel, gv_DataTable, gv_datamap;
+			var gv_status,gv_report,gv_sector,gv_channel, gv_DataTable, gv_datamap,gv_allthedata,gv_period,gv_all_circle_marker;
+			var theDataTableInit=0;
 
     		var geojson;
 					var map = L.map('regions_div', { //map is a global variable -0.38243287652926, 120.23476123809816
@@ -568,9 +570,10 @@
 
 				// function to draw the data table
 		    	function draw_DataTable(data){	
-		    		// if(theDataTableInit){
-		    		// 	theDataTableInit.destroy();
-		    		// }
+		    		if(theDataTableInit){
+		    			theDataTableInit.destroy();
+		    		}
+		    		
 		    		var datatblfor = [];
 		    		data.forEach(function(z){
 		    			var newdata = [	
@@ -619,7 +622,7 @@
 		    	var cluster = d3.scale.linear().domain([0,400]).range([5,20]);
 		    	var humanNumber = d3.format(',d');
 		    	function drawCircleOnMap(thedata){
-		    		console.log(thedata);
+		    		gv_all_circle_marker = [];
 		          	for(x in thedata){
 		              //var humanNumber = d3.format(',d');
 		              var marker = L.circleMarker([thedata[x][0],thedata[x][1]],{
@@ -629,6 +632,7 @@
 		                fillColor:'#cf1207',
 		                fillOpacity: 0.9,
 		              }).addTo(map).bindPopup('<b>'+x +': </b> <br>Number of Report: <b> '+humanNumber(thedata[x][2])+' </b>');
+		              gv_all_circle_marker.push(marker);
 		          	}
 		      	}
 
@@ -643,6 +647,140 @@
 				}
 
 				//---------------------------------------------------------------------------------------------------------------------------------------
+				function generateallgraph(thedata,period){
+					var divsankey = ['sankeydiagram'];
+					var divpiechart1 = ['status_report'];
+					var divbarchart1 = ['barchart'];
+					var divDataTable = ['datatable'];
+
+					var data = [];
+					if(period != 'all'){
+						thedata.forEach(function(d){
+							if(d['Periode_laporan'] == period){
+								data.push(d);
+							}
+						})
+					}else{
+						data = thedata;
+					}
+					
+					for(yy in divsankey){
+						var log = [];
+						var newlog = [];
+						var newlogagain = [];
+						if(divsankey[yy] == 'sankeydiagram'){
+							var sankey = [['Origin','Destination','Total']];
+							var kolom_yang_digunakan = ['org','sector','saluran_umpan_balik','kategory_ub'];
+						}else{
+							var sankey = [['Origin','Destination','Total']];
+							var kolom_yang_digunakan = ['org','saluran_umpan_balik','kategory_ub'];
+						}
+						
+						data.forEach(function(d){
+
+							let s1 = d[kolom_yang_digunakan[0]];
+							let s2 = d[kolom_yang_digunakan[1]];
+							let s3 = d[kolom_yang_digunakan[2]];
+							let s4 = d[kolom_yang_digunakan[3]];
+							
+							if(!log[s1+'-'+s2]){
+								log[s1+'-'+s2] = 1;
+							}else{
+								log[s1+'-'+s2] +=1;
+							}
+							if(!log[s2+'-'+s3]){
+								log[s2+'-'+s3] = 1;
+							}else{
+								log[s2+'-'+s3] +=1;
+							}
+							if(!log[s3+'-'+s4]){
+								log[s3+'-'+s4] = 1;
+							}else{
+								log[s3+'-'+s4] +=1;
+							}
+
+						})
+						
+						for(x in log){
+							newlog.push([x,log[x]]);
+						}
+
+						newlog.sort(compare);
+						// console.log(newlog);
+						newlog.forEach(function(d){
+							newlogagain[d[0]]=d[1];
+						})
+
+						for(x in newlogagain){
+							let str = x.split('-');
+							sankey.push( [str[0],str[1],log[x]] )
+						}
+						// console.log(sankey);
+
+						
+						gv_status = [];
+						//FOR STATUS
+						data.forEach(function(d){
+							if(!gv_status[d.status]){
+								gv_status[d.status] = 1;
+							}else{
+								gv_status[d.status] +=1;
+							}
+						});
+
+						gv_report = [];
+						//FOR REPORT
+						data.forEach(function(d){
+							if(!gv_report[d.kategory_ub]){
+								gv_report[d.kategory_ub] = 1;
+							}else{
+								gv_report[d.kategory_ub] +=1;
+							}
+						});
+						
+
+						gv_sector = [];
+						//FOR SECTOR
+						data.forEach(function(d){
+							if(!gv_sector[d.sector]){
+								gv_sector[d.sector] = 1;
+							}else{
+								gv_sector[d.sector] +=1;
+							}
+						});
+
+						gv_channel = [];
+						//FOR CHANNEL
+						data.forEach(function(d){
+							if(!gv_channel[d.saluran_umpan_balik]){
+								gv_channel[d.saluran_umpan_balik] = 1;
+							}else{
+								gv_channel[d.saluran_umpan_balik] +=1;
+							}
+						});
+
+
+						//for circle
+						var datacirclemap = [];
+						data.forEach(function(d){
+							if(!datacirclemap[d['Kecamatan']]){
+								datacirclemap[d['Kecamatan']] = [d['LAT'],d['LON'],0];
+							}
+							datacirclemap[d['Kecamatan']][2] +=1;
+						})
+						// --------------------------------------------------------
+
+					}
+
+					draw_sankey(sankey,divsankey[yy]);
+					draw_status();
+					draw_report();
+					draw_sector();
+					draw_channel();
+					draw_DataTable(data);
+					drawCircleOnMap(datacirclemap);
+				}
+
 
 				function initdraw(){
 
@@ -662,132 +800,29 @@
 
 					//SANKEY-----------------------------------------
 
-					d3.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vQTI1caegEFNTboDi73tx0n23U2Bjs8IpoXJtXP-RCxNSGBo6F6Q5FsG-2QlVnQWdnTQfbGtkCF3SPj/pub?output=csv',function(data){
-
-						
-						var divsankey = ['sankeydiagram'];
-						var divpiechart1 = ['status_report'];
-						var divbarchart1 = ['barchart'];
-						var divDataTable = ['datatable'];
-
-
-						for(yy in divsankey){
-							var log = [];
-							var newlog = [];
-							var newlogagain = [];
-							if(divsankey[yy] == 'sankeydiagram'){
-								var sankey = [['Origin','Destination','Total']];
-								var kolom_yang_digunakan = ['org','sector','saluran_umpan_balik','kategory_ub'];
-							}else{
-								var sankey = [['Origin','Destination','Total']];
-								var kolom_yang_digunakan = ['org','saluran_umpan_balik','kategory_ub'];
+					d3.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vQyWYZUYmgh8WF7wWuX8agjVEyD0qDibUNvvzcNd72v-UBo1UrcCMLQZEfrFomsEgNVug_7S1TRAcHt/pub?output=csv',function(data){
+						gv_allthedata = data;
+						gv_period = [];
+						data.forEach(function(d){
+							if($.inArray(d['Periode_laporan'],gv_period) == -1){
+								gv_period.push(d['Periode_laporan']);
+								$('#periodselect').append('<option value="'+d['Periode_laporan']+'">'+d['Periode_laporan']+'</option>');
 							}
-							
-							data.forEach(function(d){
-
-								let s1 = d[kolom_yang_digunakan[0]];
-								let s2 = d[kolom_yang_digunakan[1]];
-								let s3 = d[kolom_yang_digunakan[2]];
-								let s4 = d[kolom_yang_digunakan[3]];
-								
-								if(!log[s1+'-'+s2]){
-									log[s1+'-'+s2] = 1;
-								}else{
-									log[s1+'-'+s2] +=1;
-								}
-								if(!log[s2+'-'+s3]){
-									log[s2+'-'+s3] = 1;
-								}else{
-									log[s2+'-'+s3] +=1;
-								}
-								if(!log[s3+'-'+s4]){
-									log[s3+'-'+s4] = 1;
-								}else{
-									log[s3+'-'+s4] +=1;
-								}
-
-							})
-							
-							for(x in log){
-								newlog.push([x,log[x]]);
-							}
-
-							newlog.sort(compare);
-							// console.log(newlog);
-							newlog.forEach(function(d){
-								newlogagain[d[0]]=d[1];
-							})
-
-							for(x in newlogagain){
-								let str = x.split('-');
-								sankey.push( [str[0],str[1],log[x]] )
-							}
-							// console.log(sankey);
-
-							
-							gv_status = [];
-							//FOR STATUS
-							data.forEach(function(d){
-								if(!gv_status[d.status]){
-									gv_status[d.status] = 1;
-								}else{
-									gv_status[d.status] +=1;
-								}
-							});
-
-							gv_report = [];
-							//FOR REPORT
-							data.forEach(function(d){
-								if(!gv_report[d.kategory_ub]){
-									gv_report[d.kategory_ub] = 1;
-								}else{
-									gv_report[d.kategory_ub] +=1;
-								}
-							});
-							
-
-							gv_sector = [];
-							//FOR SECTOR
-							data.forEach(function(d){
-								if(!gv_sector[d.sector]){
-									gv_sector[d.sector] = 1;
-								}else{
-									gv_sector[d.sector] +=1;
-								}
-							});
-
-							gv_channel = [];
-							//FOR CHANNEL
-							data.forEach(function(d){
-								if(!gv_channel[d.saluran_umpan_balik]){
-									gv_channel[d.saluran_umpan_balik] = 1;
-								}else{
-									gv_channel[d.saluran_umpan_balik] +=1;
-								}
-							});
-
-
-							//for circle
-							var datacirclemap = [];
-							data.forEach(function(d){
-								if(!datacirclemap[d['Kecamatan']]){
-									datacirclemap[d['Kecamatan']] = [d['LAT'],d['LON'],0];
-								}
-								datacirclemap[d['Kecamatan']][2] +=1;
-							})
-							// --------------------------------------------------------
-
-						}
-
-						draw_sankey(sankey,divsankey[yy]);
-						draw_status();
-						draw_report();
-						draw_sector();
-						draw_channel();
-						draw_DataTable(data);
-						drawCircleOnMap(datacirclemap);
+						})
+						generateallgraph(gv_allthedata,'all');
 					})
 				}
+
+				$('#periodselect').on('change',function(){
+					var val = $(this).val();
+					gv_all_circle_marker.forEach(function(d){
+						if(map.hasLayer(d)){
+							map.removeLayer(d);
+						}
+					})
+
+					generateallgraph(gv_allthedata,val);
+				})
 
 				initdraw();
 
@@ -796,3 +831,10 @@
 
 	</body>
 </html>
+
+
+
+
+
+
+
